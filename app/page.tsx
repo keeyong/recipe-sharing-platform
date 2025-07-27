@@ -1,102 +1,176 @@
 import Image from "next/image";
+import Link from "next/link";
+import { AuthButtons } from "@/components/auth-buttons";
 
 export default function Home() {
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50">
+      {/* Navigation */}
+      <nav className="container mx-auto px-4 py-6 flex justify-between items-center">
+        <div className="flex items-center space-x-2">
+          <div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
+            <span className="text-white font-bold text-lg">🍳</span>
+          </div>
+          <span className="font-display text-2xl font-bold text-gray-800">ShareMyRecipe</span>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+                       <div className="hidden md:flex space-x-6">
+                 <Link href="/recipes" className="text-gray-600 hover:text-amber-600 transition-colors">
+                   Browse Recipes
+                 </Link>
+                 <Link href="/dashboard" className="text-gray-600 hover:text-amber-600 transition-colors">
+                   Dashboard
+                 </Link>
+                 <Link href="/recipes/create" className="text-gray-600 hover:text-amber-600 transition-colors">
+                   Create Recipe
+                 </Link>
+               </div>
+        <AuthButtons />
+      </nav>
+
+      {/* Hero Section */}
+      <section className="container mx-auto px-4 py-16 md:py-24">
+        <div className="text-center max-w-4xl mx-auto">
+          <h1 className="font-display text-5xl md:text-7xl font-bold text-gray-800 mb-6">
+            Share Your
+            <span className="text-amber-500 block">Culinary Magic</span>
+          </h1>
+          <p className="text-xl md:text-2xl text-gray-600 mb-8 leading-relaxed">
+            Discover, create, and share amazing recipes with a community of passionate home cooks. 
+            From family favorites to gourmet creations, every dish tells a story.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link 
+              href="/signup" 
+              className="px-8 py-4 bg-amber-500 text-white rounded-lg text-lg font-semibold hover:bg-amber-600 transition-colors shadow-lg hover:shadow-xl"
+            >
+              Start Sharing Today
+            </Link>
+            <Link 
+              href="/recipes" 
+              className="px-8 py-4 border-2 border-amber-500 text-amber-500 rounded-lg text-lg font-semibold hover:bg-amber-500 hover:text-white transition-colors"
+            >
+              Explore Recipes
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="container mx-auto px-4 py-16">
+        <div className="text-center mb-16">
+          <h2 className="font-display text-4xl font-bold text-gray-800 mb-4">
+            Why Choose ShareMyRecipe?
+          </h2>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Everything you need to share your culinary passion with the world
+          </p>
+        </div>
+        
+        <div className="grid md:grid-cols-3 gap-8">
+          <div className="text-center p-6">
+            <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl">📝</span>
+            </div>
+            <h3 className="font-display text-xl font-semibold text-gray-800 mb-3">
+              Easy Recipe Creation
+            </h3>
+            <p className="text-gray-600">
+              Upload photos, add ingredients, and write step-by-step instructions with our intuitive recipe builder.
+            </p>
+          </div>
+          
+          <div className="text-center p-6">
+            <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl">🔍</span>
+            </div>
+            <h3 className="font-display text-xl font-semibold text-gray-800 mb-3">
+              Smart Search & Discovery
+            </h3>
+            <p className="text-gray-600">
+              Find recipes by ingredients, cooking time, or dietary preferences. Discover new favorites every day.
+            </p>
+          </div>
+          
+          <div className="text-center p-6">
+            <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl">❤️</span>
+            </div>
+            <h3 className="font-display text-xl font-semibold text-gray-800 mb-3">
+              Save & Organize
+            </h3>
+            <p className="text-gray-600">
+              Like and save your favorite recipes to your personal collection. Never lose a great recipe again.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="bg-amber-500 py-16">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="font-display text-4xl font-bold text-white mb-4">
+            Ready to Share Your First Recipe?
+          </h2>
+          <p className="text-xl text-amber-100 mb-8 max-w-2xl mx-auto">
+            Join thousands of home cooks who are already sharing their culinary creations
+          </p>
+          <Link 
+            href="/signup" 
+            className="inline-block px-8 py-4 bg-white text-amber-500 rounded-lg text-lg font-semibold hover:bg-gray-100 transition-colors shadow-lg"
+          >
+            Create Your Account
+          </Link>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-800 text-white py-12">
+        <div className="container mx-auto px-4">
+          <div className="grid md:grid-cols-4 gap-8">
+            <div>
+              <div className="flex items-center space-x-2 mb-4">
+                <div className="w-6 h-6 bg-amber-500 rounded flex items-center justify-center">
+                  <span className="text-white text-sm">🍳</span>
+                </div>
+                <span className="font-display text-xl font-bold">ShareMyRecipe</span>
+              </div>
+              <p className="text-gray-300">
+                Connecting food lovers through the joy of cooking and sharing.
+              </p>
+            </div>
+            
+            <div>
+              <h4 className="font-semibold mb-4">Platform</h4>
+              <ul className="space-y-2 text-gray-300">
+                <li><Link href="/recipes" className="hover:text-white transition-colors">Browse Recipes</Link></li>
+                <li><Link href="/categories" className="hover:text-white transition-colors">Categories</Link></li>
+                <li><Link href="/trending" className="hover:text-white transition-colors">Trending</Link></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="font-semibold mb-4">Community</h4>
+              <ul className="space-y-2 text-gray-300">
+                <li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li>
+                <li><Link href="/contact" className="hover:text-white transition-colors">Contact</Link></li>
+                <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="font-semibold mb-4">Connect</h4>
+              <ul className="space-y-2 text-gray-300">
+                <li><Link href="/blog" className="hover:text-white transition-colors">Blog</Link></li>
+                <li><Link href="/newsletter" className="hover:text-white transition-colors">Newsletter</Link></li>
+                <li><Link href="/support" className="hover:text-white transition-colors">Support</Link></li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-300">
+            <p>&copy; 2024 ShareMyRecipe. All rights reserved.</p>
+          </div>
+        </div>
       </footer>
     </div>
   );
