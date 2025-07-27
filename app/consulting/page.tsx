@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
@@ -51,7 +52,7 @@ const consultingOptions: ConsultingOption[] = [
 
 export default function ConsultingPage() {
   const { user } = useAuth();
-  const router = useRouter();
+  // const router = useRouter(); // Removed unused variable
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -118,10 +119,10 @@ export default function ConsultingPage() {
           <span className="font-display text-2xl font-bold text-gray-800">ShareMyRecipe</span>
         </div>
         <div className="hidden md:flex space-x-6">
-          <a href="/" className="text-gray-600 hover:text-amber-600 transition-colors">Home</a>
-          <a href="/recipes" className="text-gray-600 hover:text-amber-600 transition-colors">Recipes</a>
-          <a href="/pricing" className="text-gray-600 hover:text-amber-600 transition-colors">Pricing</a>
-          <a href="/consulting" className="text-amber-600 font-semibold">Consulting</a>
+          <Link href="/" className="text-gray-600 hover:text-amber-600 transition-colors">Home</Link>
+          <Link href="/recipes" className="text-gray-600 hover:text-amber-600 transition-colors">Recipes</Link>
+          <Link href="/pricing" className="text-gray-600 hover:text-amber-600 transition-colors">Pricing</Link>
+          <Link href="/consulting" className="text-amber-600 font-semibold">Consulting</Link>
         </div>
       </nav>
 

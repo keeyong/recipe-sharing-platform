@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { cookies } from 'next/headers';
 import Stripe from 'stripe';
 
 export async function POST(request: NextRequest) {
@@ -83,7 +82,14 @@ export async function POST(request: NextRequest) {
 }
 
 // This function integrates with Stripe API directly
-async function createStripePaymentLink(paymentData: any): Promise<string> {
+interface PaymentData {
+  amount: number;
+  currency: string;
+  description: string;
+  metadata: Record<string, string>;
+}
+
+async function createStripePaymentLink(paymentData: PaymentData): Promise<string> {
   try {
     console.log('Creating Stripe payment link...');
     console.log('STRIPE_SECRET_KEY exists:', !!process.env.STRIPE_SECRET_KEY);
