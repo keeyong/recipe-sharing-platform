@@ -1,21 +1,53 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCurrentUser } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
+import { cookies } from 'next/headers';
+import Stripe from 'stripe';
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('=== Consulting Payment API Called ===');
     const { optionId, userId, amount, description } = await request.json();
+    console.log('Request data:', { optionId, userId, amount, description });
     
     if (!optionId || !userId || !amount || !description) {
+      console.log('Missing required fields');
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
       );
     }
 
-    const user = await getCurrentUser();
-    if (!user) {
+    console.log('Getting current user...');
+    
+    // Get Authorization header
+    const authHeader = request.headers.get('authorization');
+    console.log('Auth header exists:', !!authHeader);
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.log('No valid authorization header');
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'Unauthorized - Please log in' },
+        { status: 401 }
+      );
+    }
+    
+    // Create Supabase client for API route
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+    
+    // Set the auth token
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    
+    console.log('Current user:', user ? 'Found' : 'Not found');
+    console.log('Auth error:', authError);
+    
+    if (!user || authError) {
+      console.log('User not authenticated');
+      return NextResponse.json(
+        { error: 'Unauthorized - Invalid token' },
         { status: 401 }
       );
     }
@@ -50,23 +82,52 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// This function would integrate with your MCP Stripe server
+// This function integrates with Stripe API directly
 async function createStripePaymentLink(paymentData: any): Promise<string> {
-  // This is a placeholder - you would replace this with your MCP Stripe server call
-  // Example MCP server integration:
-  
-  // const response = await fetch('your-mcp-stripe-server-url/create-payment-link', {
-  //   method: 'POST',
-  //   headers: {
-  //     'Content-Type': 'application/json',
-  //   },
-  //   body: JSON.stringify(paymentData),
-  // });
-  
-  // const { paymentUrl } = await response.json();
-  // return paymentUrl;
+  try {
+    console.log('Creating Stripe payment link...');
+    console.log('STRIPE_SECRET_KEY exists:', !!process.env.STRIPE_SECRET_KEY);
+    
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+      apiVersion: '2025-06-30.basil',
+    });
 
-  // For now, return a placeholder URL
-  // You'll need to implement this with your actual MCP Stripe server
-  return `https://checkout.stripe.com/pay/cs_test_placeholder#fidkdXx0YmxldWxvZx1gYmxldWxsZ2JldW9pZF9kbXF6Y2JqbW44Y0JfY3dmZ3F1YndsamZpa2R9Y3JocWRhd2E9PWNjdXZ3YnBsa0xNY0E8T1lTR0RET1VSR08ya3Z1Y0tDbGcrWHpkdGdJb1lISzZ2U0ZSV2s0ZWxTRlk9Y21TPWZKaW9jR2V3dkVqWmRyaGx1aVpPZ01YNEp0b1dRZ2g2T2xxN3Z1Y2JkZGl3Y0dSbGtYY1RhN2x0Zld1Y2ZkZ2F0PTYmd2RkZmR1ZGR3ZmJlcXZ1Z2JkaXVpdpZ2Y2JwaWZda2ZpbGpya2JgYWZ0c2JrbW1va2JmZmZ1Y3BjYj1maWR1Y3BjYj1nYjFzY2JpYVdXZ29lQ3dnYj1xY2JpY0Fpb2N0ZWN1d09pY2l1ZE9nYWNlaVlpT3R0YWNlaXRmT2d0Y2FlZXB1dWNlbWl5V2RjYWVpeXl0WWNhZWF4Z2R3YWNhYnNiYXBjYmF1Y2JhcHZzYVxcZ2ZkZ2ZpbGK2Z2I9Z2RkdmFkYWF3dGJhMGI2aXF1b2JhcHZzYWFmYjdmN3RtYmluzdF&c=QWNjb3VudF9pZD10aHJlYWRzLXN1cHBvcnQlMjBNT1NUJTIwSU1QT1JUQU5UJTIwLS0lMjB3aGVuJTIweW91JTIwc2V0JTIwdXAlMjBhJTIwd2Vic2l0ZSUyQyUyMHlvdSUyMG5lZWQlMjB0byUyMGZvY3VzJTIwb24lMjB0aGUlMjBtb3N0JTIwaW1wb3J0YW50JTIwdGhpbmdzJTIwZmlyc3QuJTIwVGhlc2UlMjBhcmUlMjB0aGUlMjB0aHJlZSUyMG1vc3QlMjBpbXBvcnRhbnQlMjB0aGluZ3MlMjB0byUyMGZvY3VzJTIwb24lMjB3aGVuJTIweW91JTIwc2V0JTIwdXAlMjBhJTIwd2Vic2l0ZToKMS4gKipVc2VyJTIwRXhwZXJpZW5jZSoqJTIwLS0lMjBUaGUlMjBtb3N0JTIwaW1wb3J0YW50JTIwdGhpbmclMjBpcyUyMGhvdyUyMHlvdXIlMjB1c2VycyUyMGV4cGVyaWVuY2UlMjB5b3VyJTIwd2Vic2l0ZS4lMjBUaGlzJTIwaW5jbHVkZXMlMjB0aGluZ3MlMjBsaWtlJTIwdXNhYmlsaXR5JTJDJTIwcGVyZm9ybWFuY2UlMkMlMjBhbmQlMjBkZXNpZ24uCjIuICoqQ29udGVudCoqJTIwLS0lMjBUaGUlMjBzZWNvbmQlMjBtb3N0JTIwaW1wb3J0YW50JTIwdGhpbmclMjBpcyUyMHRoZSUyMGNvbnRlbnQlMjBvbiUyMHlvdXIlMjB3ZWJzaXRlLiUyMFRoaXMlMjBpbmNsdWRlcyUyMHRoaW5ncyUyMGxpa2UlMjB0aGUlMjBxdWFsaXR5JTIwb2YlMjB5b3VyJTIwd3JpdGluZyUyQyUyMHRoZSUyMGludGVyZXN0aW5nbmVzcyUyMG9mJTIweW91ciUyMGNvbnRlbnQlMkMlMjBhbmQlMjB0aGUlMjByZWxldmFuY2UlMjBvZiUyMHlvdXIlMjBjb250ZW50JTIwdG8lMjB5b3VyJTIwdXNlcnMuCjMuICoqU2VhcmNoJTIwRW5naW5lJTIwT3B0aW1pemF0aW9uJTIwKFNFTykqKiUyMC0tJTIwVGhlJTIwdGhpcmQlMjBtb3N0JTIwaW1wb3J0YW50JTIwdGhpbmclMjBpcyUyMHNlYXJjaCUyMGVuZ2luZSUyMG9wdGltaXphdGlvbi4lMjBUaGlzJTIwaW5jbHVkZXMlMjB0aGluZ3MlMjBsaWtlJTIwdXNpbmclMjB0aGUlMjByaWdodCUyMGtleXdvcmRzJTJDJTIwbWFraW5nJTIweW91ciUyMHNpdGUlMjBmYXN0JTJDJTIwYW5kJTIwbWFraW5nJTIweW91ciUyMHNpdGUlMjBtb2JpbGUtZnJpZW5kbHkuCgpUaGVzZSUyMGFyZSUyMHRoZSUyMHRocmVlJTIwbW9zdCUyMGltcG9ydGFudCUyMHRoaW5ncyUyMHRvJTIwZm9jdXMlMjBvbiUyMHdoZW4lMjB5b3UlMjBzZXQlMjB1cCUyMGElMjB3ZWJzaXRlLiUyMElmJTIweW91JTIwY2FuJTIwbWFzdGVyJTIwdGhlc2UlMjB0aHJlZSUyMHRoaW5ncyUyQyUyMHlvdSUyMHdpbGwlMjBiZSUyMHdlbGwlMjBvbiUyMHlvdXIlMjB3YXklMjB0byUyMGJ1aWxkaW5nJTIwYSUyMHN1Y2Nlc3NmdWwlMjB3ZWJzaXRlLg==`;
+    // Step 1: Create or get existing product for consulting service
+    const productName = paymentData.description.includes('Individual') 
+      ? 'Individual Recipe Consulting' 
+      : 'Group Recipe Consulting';
+    
+    console.log('Product name:', productName);
+    
+    // Step 2: Create product in Stripe
+    const product = await stripe.products.create({
+      name: productName,
+      description: paymentData.description,
+    });
+    
+    // Step 3: Create price for the product
+    const price = await stripe.prices.create({
+      product: product.id,
+      unit_amount: paymentData.amount,
+      currency: paymentData.currency,
+    });
+    
+    // Step 4: Create payment link
+    const paymentLink = await stripe.paymentLinks.create({
+      line_items: [
+        {
+          price: price.id,
+          quantity: 1,
+        },
+      ],
+      metadata: paymentData.metadata,
+    });
+    
+    console.log('Successfully created payment link:', paymentLink.url);
+    return paymentLink.url;
+    
+  } catch (error) {
+    console.error('Error creating Stripe payment link:', error);
+    throw new Error('Failed to create payment link');
+  }
 } 

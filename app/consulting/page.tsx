@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabase';
 
 interface ConsultingOption {
   id: string;
@@ -68,11 +69,18 @@ export default function ConsultingPage() {
       const option = consultingOptions.find(opt => opt.id === optionId);
       if (!option) throw new Error('Invalid option selected');
 
+      // Get user session token
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        throw new Error('No valid session found');
+      }
+
       // Create a payment link using MCP Stripe server
       const response = await fetch('/api/consulting/create-payment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({
           optionId,
