@@ -179,3 +179,170 @@ export const getRecipesByCategory = async (category: string, limit = 10, offset 
   if (error) throw error;
   return data;
 }; 
+
+// 구독 관련 헬퍼 함수들
+export async function getSubscriptionPlans() {
+  const { data, error } = await supabase
+    .from('subscription_plans')
+    .select('*')
+    .order('price', { ascending: true });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getUserSubscription(userId: string) {
+  const { data, error } = await supabase
+    .from('user_subscriptions')
+    .select(`
+      *,
+      subscription_plans (*)
+    `)
+    .eq('user_id', userId)
+    .eq('status', 'active')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .single();
+
+  if (error && error.code !== 'PGRST116') throw error;
+  return data;
+}
+
+export async function getUserUsage(userId: string, monthYear: string) {
+  const { data, error } = await supabase
+    .from('user_usage')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('month_year', monthYear)
+    .single();
+
+  if (error && error.code !== 'PGRST116') throw error;
+  return data || {
+    recipes_uploaded: 0,
+    images_uploaded: 0,
+    total_image_size: 0,
+  };
+}
+
+export async function incrementRecipeUsage(userId: string, monthYear: string) {
+  const { data: existingUsage } = await supabase
+    .from('user_usage')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('month_year', monthYear)
+    .single();
+
+  if (existingUsage) {
+    const { error } = await supabase
+      .from('user_usage')
+      .update({
+        recipes_uploaded: existingUsage.recipes_uploaded + 1,
+      })
+      .eq('id', existingUsage.id);
+
+    if (error) throw error;
+  } else {
+    const { error } = await supabase
+      .from('user_usage')
+      .insert({
+        user_id: userId,
+        month_year: monthYear,
+        recipes_uploaded: 1,
+      });
+
+    if (error) throw error;
+  }
+}
+
+export async function incrementImageUsage(userId: string, monthYear: string, imageSize: number) {
+  const { data: existingUsage } = await supabase
+    .from('user_usage')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('month_year', monthYear)
+    .single();
+
+  if (existingUsage) {
+    const { error } = await supabase
+      .from('user_usage')
+      .update({
+        images_uploaded: existingUsage.images_uploaded + 1,
+        total_image_size: existingUsage.total_image_size + imageSize,
+      })
+      .eq('id', existingUsage.id);
+
+    if (error) throw error;
+  } else {
+    const { error } = await supabase
+      .from('user_usage')
+      .insert({
+        user_id: userId,
+        month_year: monthYear,
+        images_uploaded: 1,
+        total_image_size: imageSize,
+      });
+
+    if (error) throw error;
+  }
+}
+
+export async function createSubscriptionRecord(
+  userId: string,
+  planId: string,
+  stripeSubscriptionId: string,
+  stripeCustomerId: string
+) {
+  const { error } = await supabase
+    .from('user_subscriptions')
+    .insert({
+      user_id: userId,
+      plan_id: planId,
+      stripe_subscription_id: stripeSubscriptionId,
+      stripe_customer_id: stripeCustomerId,
+      status: 'active',
+    });
+
+  if (error) throw error;
+}
+
+export async function updateSubscriptionStatus(
+  stripeSubscriptionId: string,
+  status: string,
+  currentPeriodEnd?: string
+) {
+  const updateData: any = { status };
+  if (currentPeriodEnd) {
+    updateData.current_period_end = currentPeriodEnd;
+  }
+
+  const { error } = await supabase
+    .from('user_subscriptions')
+    .update(updateData)
+    .eq('stripe_subscription_id', stripeSubscriptionId);
+
+  if (error) throw error;
+}
+
+export async function createPaymentRecord(
+  userId: string,
+  subscriptionId: string | null,
+  stripePaymentIntentId: string | null,
+  stripeInvoiceId: string | null,
+  amount: number,
+  status: string,
+  paymentMethod?: string
+) {
+  const { error } = await supabase
+    .from('payments')
+    .insert({
+      user_id: userId,
+      subscription_id: subscriptionId,
+      stripe_payment_intent_id: stripePaymentIntentId,
+      stripe_invoice_id: stripeInvoiceId,
+      amount,
+      status,
+      payment_method: paymentMethod,
+    });
+
+  if (error) throw error;
+} 
