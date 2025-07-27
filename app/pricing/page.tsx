@@ -137,6 +137,13 @@ export default function PricingPage() {
           </div>
           <span className="font-display text-2xl font-bold text-gray-800">ShareMyRecipe</span>
         </div>
+        <div className="hidden md:flex space-x-6">
+          <a href="/" className="text-gray-600 hover:text-amber-600 transition-colors">Home</a>
+          <a href="/recipes" className="text-gray-600 hover:text-amber-600 transition-colors">Recipes</a>
+          <a href="/dashboard" className="text-gray-600 hover:text-amber-600 transition-colors">Dashboard</a>
+          <a href="/pricing" className="text-amber-600 font-semibold">Pricing</a>
+          <a href="/consulting" className="text-gray-600 hover:text-amber-600 transition-colors">Consulting</a>
+        </div>
       </nav>
 
       {/* Header */}

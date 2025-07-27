@@ -23,6 +23,12 @@ export default function Home() {
                  <Link href="/recipes/create" className="text-gray-600 hover:text-amber-600 transition-colors">
                    Create Recipe
                  </Link>
+                 <Link href="/pricing" className="text-gray-600 hover:text-amber-600 transition-colors">
+                   Pricing
+                 </Link>
+                 <Link href="/consulting" className="text-gray-600 hover:text-amber-600 transition-colors">
+                   Consulting
+                 </Link>
                </div>
         <AuthButtons />
       </nav>

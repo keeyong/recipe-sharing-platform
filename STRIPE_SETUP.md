@@ -16,6 +16,7 @@
 ## 2. 환경 변수 설정
 
 ### 2.1 .env.local 파일에 추가
+ - STRIPE_WEBHOOK_SECRET를 어떻게 채우는지는 뒤에 더 설명
 ```bash
 # Stripe 설정
 STRIPE_SECRET_KEY=sk_test_your_secret_key_here
@@ -31,6 +32,7 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_your_publishable_key_here
 
 ### 3.1 Products 생성
 1. Dashboard → Products → Add product
+  - https://dashboard.stripe.com/test/products?active=true
 2. 다음 제품들을 생성:
 
 #### Basic Plan (무료)
